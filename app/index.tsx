@@ -10,7 +10,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { Crown, Swords, RotateCcw } from 'lucide-react-native';
+import { Ionicons } from '@expo/vector-icons';
 import ChessBoard from '@/components/ChessBoard';
 import { GameState, Position } from '@/types/chess';
 import { initializeBoard, isValidMove, makeMove, isInCheck, isCheckmate, updateCastlingRights } from '@/utils/chessLogic';
@@ -175,7 +175,7 @@ export default function ChessGame() {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Crown size={24} color="#f59e0b" />
+          <Ionicons name="trophy" size={24} color="#f59e0b" />
           <Text style={styles.title}>Chess Variant 64</Text>
         </View>
 
@@ -213,7 +213,7 @@ export default function ChessGame() {
                 onPress={() => setActionMode('move')}
                 activeOpacity={0.8}
               >
-                <Swords size={16} color="#ffffff" />
+                <Ionicons name="move" size={16} color="#ffffff" />
                 <Text style={styles.buttonText}>Déplacer</Text>
               </TouchableOpacity>
 
@@ -243,7 +243,7 @@ export default function ChessGame() {
         {/* Game Over */}
         {gameState.gameOver && (
           <View style={styles.gameOver}>
-            <Crown size={32} color="#f59e0b" />
+            <Ionicons name="trophy" size={32} color="#f59e0b" />
             <Text style={styles.winnerText}>
               {gameState.winner === 'white' ? 'Les Blancs' : 'Les Noirs'} ont gagné !
             </Text>
@@ -256,7 +256,7 @@ export default function ChessGame() {
           onPress={resetGame}
           activeOpacity={0.8}
         >
-          <RotateCcw size={16} color="#ffffff" />
+          <Ionicons name="refresh" size={16} color="#ffffff" />
           <Text style={styles.resetText}>Nouvelle Partie</Text>
         </TouchableOpacity>
       </ScrollView>
