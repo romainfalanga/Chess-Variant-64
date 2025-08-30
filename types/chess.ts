@@ -23,6 +23,14 @@ export interface GameState {
   removedSquares: Set<string>;
   gameOver: boolean;
   winner: Player | null;
+  removalsUsed: {
+    white: number;
+    black: number;
+  };
+  timeLeft: {
+    white: number; // en secondes
+    black: number; // en secondes
+  };
   castlingRights: CastlingRights;
   kingMoved: {
     white: boolean;
@@ -34,4 +42,13 @@ export interface GameState {
     blackKingside: boolean;
     blackQueenside: boolean;
   };
+}
+
+export interface GameSettings {
+  timeLimit: number; // en minutes
+  removalsPerPlayer: number; // nombre de suppressions par joueur
+}
+
+export interface GameConfig extends GameSettings {
+  gameStarted: boolean;
 }

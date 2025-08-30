@@ -13,6 +13,7 @@ interface ChessSquareProps {
   isLight: boolean;
   isSelected: boolean;
   isRemoved: boolean;
+  isPossibleMove: boolean;
   onPress: () => void;
   canSelect: boolean;
   size: number;
@@ -45,6 +46,7 @@ export default function ChessSquare({
   isLight,
   isSelected,
   isRemoved,
+  isPossibleMove,
   onPress,
   canSelect,
   size,
@@ -75,6 +77,7 @@ export default function ChessSquare({
   const getBackgroundColor = () => {
     if (isRemoved) return removedColor;
     if (isSelected) return selectedColor;
+    if (isPossibleMove) return '#90EE90'; // Vert clair pour les mouvements possibles
     return isLight ? lightColor : darkColor;
   };
 
@@ -121,6 +124,18 @@ export default function ChessSquare({
       {isSelected && (
         <View style={styles.selectedBorder} />
       )}
+
+      {isPossibleMove && !isRemoved && (
+        <View style={styles.possibleMoveIndicator}>
+          {piece ? (
+            // Indicateur de capture (cercle rouge)
+            <View style={[styles.captureIndicator, { width: size * 0.8, height: size * 0.8 }]} />
+          ) : (
+            // Indicateur de mouvement libre (point vert)
+            <View style={[styles.moveIndicator, { width: size * 0.3, height: size * 0.3 }]} />
+          )}
+        </View>
+      )}
     </AnimatedTouchableOpacity>
   );
 }
@@ -165,5 +180,26 @@ const styles = StyleSheet.create({
     position: 'absolute',
     borderRadius: 50,
     backgroundColor: '#28a745',
+  },
+  possibleMoveIndicator: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  moveIndicator: {
+    backgroundColor: '#28a745',
+    borderRadius: 50,
+    opacity: 0.8,
+  },
+  captureIndicator: {
+    borderWidth: 3,
+    borderColor: '#dc3545',
+    borderRadius: 50,
+    backgroundColor: 'transparent',
+    opacity: 0.8,
   },
 });

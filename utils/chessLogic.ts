@@ -1,5 +1,28 @@
 import { Board, Piece, Position, Player, PieceType, GameState } from '@/types/chess';
 
+export function getPossibleMoves(
+  board: Board,
+  from: Position,
+  removedSquares: Set<string>,
+  gameState?: GameState
+): Position[] {
+  const moves: Position[] = [];
+  
+  for (let toRow = 0; toRow < 8; toRow++) {
+    for (let toCol = 0; toCol < 8; toCol++) {
+      if (isValidMove(board, from, [toRow, toCol], removedSquares, gameState)) {
+        const moveResult = makeMove(board, from, [toRow, toCol], gameState);
+        const piece = board[from[0]][from[1]];
+        if (piece && !isInCheck(moveResult.board, piece.color, removedSquares)) {
+          moves.push([toRow, toCol]);
+        }
+      }
+    }
+  }
+  
+  return moves;
+}
+
 export function initializeBoard(): Board {
   const board: Board = Array(8).fill(null).map(() => Array(8).fill(null));
   

@@ -12,12 +12,20 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import ChessBoard from '@/components/ChessBoard';
-import { GameState, Position } from '@/types/chess';
+import GameSetup from '@/components/GameSetup';
+import ChessTimer from '@/components/ChessTimer';
+import { GameState, Position, GameSettings, GameConfig } from '@/types/chess';
 import { initializeBoard, isValidMove, makeMove, isInCheck, isCheckmate, updateCastlingRights } from '@/utils/chessLogic';
 
 const { width: screenWidth } = Dimensions.get('window');
 
 export default function ChessGame() {
+  const [gameConfig, setGameConfig] = useState<GameConfig>({
+    timeLimit: 5,
+    removalsPerPlayer: 3,
+    gameStarted: false,
+  });
+
   const [gameState, setGameState] = useState<GameState>({
     board: initializeBoard(),
     currentPlayer: 'white',
@@ -25,6 +33,8 @@ export default function ChessGame() {
     removedSquares: new Set(),
     gameOver: false,
     winner: null,
+    removalsUsed: { white: 0, black: 0 },
+    timeLeft: { white: 300, black: 300 }, // 5 minutes par défaut
     castlingRights: {
       whiteKingside: true,
       whiteQueenside: true,
@@ -44,6 +54,41 @@ export default function ChessGame() {
   });
 
   const [actionMode, setActionMode] = useState<'move' | 'remove'>('move');
+  const [possibleMoves, setPossibleMoves] = useState<Position[]>([]);
+
+  const handleTimeUp = (player: Player) => {
+    const winner = player === 'white' ? 'black' : 'white';
+    setGameState(prev => ({
+      ...prev,
+      gameOver: true,
+      winner,
+    }));
+    Alert.alert('Temps écoulé !', `Le joueur ${winner === 'white' ? 'Blanc' : 'Noir'} gagne par forfait !`);
+  };
+
+  const handleTimeUpdate = (player: Player, newTime: number) => {
+    setGameState(prev => ({
+      ...prev,
+      timeLeft: {
+        ...prev.timeLeft,
+        [player]: newTime,
+      },
+    }));
+  };
+
+  const handleSettingsChange = (settings: GameSettings) => {
+    setGameConfig(prev => ({ ...prev, ...settings }));
+  };
+
+  const startGame = () => {
+    // Initialiser les temps en fonction de la configuration
+    const timeInSeconds = gameConfig.timeLimit * 60;
+    setGameState(prev => ({
+      ...prev,
+      timeLeft: { white: timeInSeconds, black: timeInSeconds },
+    }));
+    setGameConfig(prev => ({ ...prev, gameStarted: true }));
+  };
 
   const handleSquarePress = useCallback((row: number, col: number) => {
     if (gameState.gameOver) return;
@@ -52,6 +97,12 @@ export default function ChessGame() {
     const positionKey = `${row}-${col}`;
 
     if (actionMode === 'remove') {
+      // Vérifier si le joueur a encore des suppressions disponibles
+      if (gameState.removalsUsed[gameState.currentPlayer] >= gameConfig.removalsPerPlayer) {
+        Alert.alert('Limite atteinte', `Vous avez déjà utilisé toutes vos ${gameConfig.removalsPerPlayer} suppressions`);
+        return;
+      }
+
       if (gameState.removedSquares.has(positionKey)) {
         Alert.alert('Erreur', 'Cette case est déjà supprimée');
         return;
@@ -66,13 +117,18 @@ export default function ChessGame() {
       const newRemovedSquares = new Set(gameState.removedSquares);
       newRemovedSquares.add(positionKey);
 
+      const newRemovalsUsed = { ...gameState.removalsUsed };
+      newRemovalsUsed[gameState.currentPlayer]++;
+
       setGameState(prev => ({
         ...prev,
         removedSquares: newRemovedSquares,
+        removalsUsed: newRemovalsUsed,
         currentPlayer: prev.currentPlayer === 'white' ? 'black' : 'white',
       }));
 
       setActionMode('move');
+      setPossibleMoves([]);
       return;
     }
 
@@ -81,6 +137,7 @@ export default function ChessGame() {
       
       if (selectedRow === row && selectedCol === col) {
         setGameState(prev => ({ ...prev, selectedSquare: null }));
+        setPossibleMoves([]);
         return;
       }
 
@@ -122,23 +179,56 @@ export default function ChessGame() {
         });
 
         setActionMode('move');
+        setPossibleMoves([]);
       } else {
         const piece = gameState.board[row][col];
         if (piece && piece.color === gameState.currentPlayer) {
           setGameState(prev => ({ ...prev, selectedSquare: position }));
+          // Calculer et afficher les mouvements possibles
+          const moves: Position[] = [];
+          for (let toRow = 0; toRow < 8; toRow++) {
+            for (let toCol = 0; toCol < 8; toCol++) {
+              if (isValidMove(gameState.board, position, [toRow, toCol], gameState.removedSquares, gameState)) {
+                const moveResult = makeMove(gameState.board, position, [toRow, toCol], gameState);
+                if (!isInCheck(moveResult.board, gameState.currentPlayer, gameState.removedSquares)) {
+                  moves.push([toRow, toCol]);
+                }
+              }
+            }
+          }
+          setPossibleMoves(moves);
         } else {
           setGameState(prev => ({ ...prev, selectedSquare: null }));
+          setPossibleMoves([]);
         }
       }
     } else {
       const piece = gameState.board[row][col];
       if (piece && piece.color === gameState.currentPlayer) {
         setGameState(prev => ({ ...prev, selectedSquare: position }));
+        // Calculer et afficher les mouvements possibles
+        const moves: Position[] = [];
+        for (let toRow = 0; toRow < 8; toRow++) {
+          for (let toCol = 0; toCol < 8; toCol++) {
+            if (isValidMove(gameState.board, position, [toRow, toCol], gameState.removedSquares, gameState)) {
+              const moveResult = makeMove(gameState.board, position, [toRow, toCol], gameState);
+              if (!isInCheck(moveResult.board, gameState.currentPlayer, gameState.removedSquares)) {
+                moves.push([toRow, toCol]);
+              }
+            }
+          }
+        }
+        setPossibleMoves(moves);
       }
     }
-  }, [gameState, actionMode]);
+  }, [gameState, actionMode, gameConfig.removalsPerPlayer]);
 
   const resetGame = () => {
+    setGameConfig({
+      timeLimit: 5,
+      removalsPerPlayer: 3,
+      gameStarted: false,
+    });
     setGameState({
       board: initializeBoard(),
       currentPlayer: 'white',
@@ -146,6 +236,8 @@ export default function ChessGame() {
       removedSquares: new Set(),
       gameOver: false,
       winner: null,
+      removalsUsed: { white: 0, black: 0 },
+      timeLeft: { white: 300, black: 300 },
       castlingRights: {
         whiteKingside: true,
         whiteQueenside: true,
@@ -164,102 +256,150 @@ export default function ChessGame() {
       },
     });
     setActionMode('move');
+    setPossibleMoves([]);
   };
+
+  // Afficher l'écran de configuration si le jeu n'a pas commencé
+  if (!gameConfig.gameStarted) {
+    return (
+      <GameSetup
+        settings={gameConfig}
+        onSettingsChange={handleSettingsChange}
+        onStartGame={startGame}
+      />
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" />
-      <ScrollView 
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Header */}
-        <View style={styles.header}>
-          <Ionicons name="trophy" size={24} color="#f59e0b" />
-          <Text style={styles.title}>Chess Variant 64</Text>
+      
+      {/* Layout principal en 3 zones */}
+      <View style={styles.gameLayout}>
+        
+        {/* Chronomètre invisible pour gérer le décompte */}
+        <ChessTimer
+          timeLeft={gameState.timeLeft}
+          currentPlayer={gameState.currentPlayer}
+          gameOver={gameState.gameOver}
+          onTimeUp={handleTimeUp}
+          onTimeUpdate={handleTimeUpdate}
+        />
+        
+        {/* Zone joueur noir (haut) */}
+        <View style={styles.playerZone}>
+          <View style={styles.playerInfo}>
+            <View style={styles.timerContainer}>
+              <Text style={[
+                styles.timeText,
+                gameState.currentPlayer === 'black' && styles.activeTimeText,
+                gameState.timeLeft.black <= 10 && styles.criticalTimeText,
+              ]}>
+                {Math.floor(gameState.timeLeft.black / 60)}:{(gameState.timeLeft.black % 60).toString().padStart(2, '0')}
+              </Text>
+              <Text style={styles.playerLabel}>NOIR</Text>
+            </View>
+            <View style={styles.removalsInfo}>
+              <Text style={styles.removalsText}>
+                {gameConfig.removalsPerPlayer - gameState.removalsUsed.black} ✕
+              </Text>
+            </View>
+          </View>
         </View>
 
-        {/* Player Indicator */}
-        <View style={styles.playerIndicator}>
-          <Text style={styles.playerText}>Tour du joueur</Text>
-          <Text style={styles.currentPlayer}>
-            {gameState.currentPlayer === 'white' ? 'BLANC' : 'NOIR'}
-          </Text>
-        </View>
-
-        {/* Chess Board */}
-        <View style={styles.boardContainer}>
-          <ChessBoard
-            board={gameState.board}
-            selectedSquare={gameState.selectedSquare}
-            removedSquares={gameState.removedSquares}
-            onSquarePress={handleSquarePress}
-            currentPlayer={gameState.currentPlayer}
-          />
-        </View>
-
-        {/* Action Controls */}
-        {!gameState.gameOver && (
-          <View style={styles.controls}>
-            <Text style={styles.controlsTitle}>Choisissez votre action</Text>
-            
-            <View style={styles.actionButtons}>
+        {/* Zone centrale - Échiquier et contrôles */}
+        <View style={styles.centerZone}>
+          <View style={styles.boardContainer}>
+            <ChessBoard
+              board={gameState.board}
+              selectedSquare={gameState.selectedSquare}
+              removedSquares={gameState.removedSquares}
+              possibleMoves={possibleMoves}
+              onSquarePress={handleSquarePress}
+              currentPlayer={gameState.currentPlayer}
+            />
+          </View>
+          
+          {/* Contrôles compacts */}
+          {!gameState.gameOver && (
+            <View style={styles.compactControls}>
               <TouchableOpacity
                 style={[
-                  styles.actionButton,
-                  styles.moveButton,
-                  actionMode === 'move' && styles.activeButton,
+                  styles.compactButton,
+                  actionMode === 'move' && styles.activeCompactButton,
                 ]}
                 onPress={() => setActionMode('move')}
                 activeOpacity={0.8}
               >
-                <Ionicons name="move" size={16} color="#ffffff" />
-                <Text style={styles.buttonText}>Déplacer</Text>
+                <Ionicons name="move" size={18} color="#ffffff" />
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={[
-                  styles.actionButton,
-                  styles.removeButton,
-                  actionMode === 'remove' && styles.activeRemoveButton,
+                  styles.compactButton,
+                  styles.removeCompactButton,
+                  actionMode === 'remove' && styles.activeRemoveCompactButton,
+                  gameState.removalsUsed[gameState.currentPlayer] >= gameConfig.removalsPerPlayer && styles.disabledCompactButton,
                 ]}
                 onPress={() => setActionMode('remove')}
                 activeOpacity={0.8}
+                disabled={gameState.removalsUsed[gameState.currentPlayer] >= gameConfig.removalsPerPlayer}
               >
                 <Text style={styles.removeIcon}>✕</Text>
-                <Text style={styles.buttonText}>Supprimer</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity 
+                style={styles.resetCompactButton} 
+                onPress={resetGame}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="refresh" size={18} color="#ffffff" />
               </TouchableOpacity>
             </View>
+          )}
 
-            <Text style={styles.instruction}>
-              {actionMode === 'move' 
-                ? 'Sélectionnez une pièce puis sa destination'
-                : 'Touchez une case vide pour la supprimer'
-              }
-            </Text>
+          {/* Game Over Overlay */}
+          {gameState.gameOver && (
+            <View style={styles.gameOverOverlay}>
+              <View style={styles.gameOverCard}>
+                <Ionicons name="trophy" size={32} color="#f59e0b" />
+                <Text style={styles.winnerText}>
+                  {gameState.winner === 'white' ? 'BLANC' : 'NOIR'} GAGNE !
+                </Text>
+                <TouchableOpacity 
+                  style={styles.newGameButton} 
+                  onPress={resetGame}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.newGameText}>Nouvelle partie</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+        </View>
+
+        {/* Zone joueur blanc (bas) */}
+        <View style={styles.playerZone}>
+          <View style={styles.playerInfo}>
+            <View style={styles.removalsInfo}>
+              <Text style={styles.removalsText}>
+                {gameConfig.removalsPerPlayer - gameState.removalsUsed.white} ✕
+              </Text>
+            </View>
+            <View style={styles.timerContainer}>
+              <Text style={styles.playerLabel}>BLANC</Text>
+              <Text style={[
+                styles.timeText,
+                gameState.currentPlayer === 'white' && styles.activeTimeText,
+                gameState.timeLeft.white <= 10 && styles.criticalTimeText,
+              ]}>
+                {Math.floor(gameState.timeLeft.white / 60)}:{(gameState.timeLeft.white % 60).toString().padStart(2, '0')}
+              </Text>
+            </View>
           </View>
-        )}
-
-        {/* Game Over */}
-        {gameState.gameOver && (
-          <View style={styles.gameOver}>
-            <Ionicons name="trophy" size={32} color="#f59e0b" />
-            <Text style={styles.winnerText}>
-              {gameState.winner === 'white' ? 'Les Blancs' : 'Les Noirs'} ont gagné !
-            </Text>
-          </View>
-        )}
-
-        {/* Reset Button */}
-        <TouchableOpacity 
-          style={styles.resetButton} 
-          onPress={resetGame}
-          activeOpacity={0.8}
-        >
-          <Ionicons name="refresh" size={16} color="#ffffff" />
-          <Text style={styles.resetText}>Nouvelle Partie</Text>
-        </TouchableOpacity>
-      </ScrollView>
+        </View>
+        
+      </View>
     </SafeAreaView>
   );
 }
@@ -269,124 +409,159 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#312e2b',
   },
-  scrollContent: {
-    flexGrow: 1,
-    padding: 20,
-    alignItems: 'center',
+  gameLayout: {
+    flex: 1,
+    justifyContent: 'space-between',
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#ffffff',
-    marginLeft: 8,
-  },
-  playerIndicator: {
-    backgroundColor: '#ffffff',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-    marginBottom: 20,
-    alignItems: 'center',
-  },
-  playerText: {
-    fontSize: 12,
-    color: '#666666',
-    marginBottom: 2,
-  },
-  currentPlayer: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#000000',
-  },
-  boardContainer: {
-    marginBottom: 24,
-    alignItems: 'center',
+  playerZone: {
+    height: 80,
     justifyContent: 'center',
-  },
-  controls: {
-    alignItems: 'center',
-    marginBottom: 20,
-    width: '100%',
-  },
-  controlsTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#ffffff',
-    marginBottom: 16,
-  },
-  actionButtons: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 12,
-  },
-  actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
     paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 6,
-    minWidth: 110,
-    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.1)',
   },
-  moveButton: {
-    backgroundColor: '#5cb85c',
-  },
-  removeButton: {
-    backgroundColor: '#666666',
-  },
-  activeButton: {
-    backgroundColor: '#4a9eff',
-  },
-  activeRemoveButton: {
-    backgroundColor: '#d9534f',
-  },
-  buttonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#ffffff',
-    marginLeft: 6,
-  },
-  removeIcon: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#ffffff',
-  },
-  instruction: {
-    fontSize: 13,
-    color: '#cccccc',
-    textAlign: 'center',
-    maxWidth: screenWidth - 60,
-  },
-  gameOver: {
-    alignItems: 'center',
-    backgroundColor: '#ffffff',
-    padding: 20,
-    borderRadius: 12,
-    marginBottom: 20,
-  },
-  winnerText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#000000',
-    marginTop: 8,
-  },
-  resetButton: {
+  playerInfo: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#d9534f',
+  },
+  timerContainer: {
+    alignItems: 'center',
+    backgroundColor: '#4a5568',
     paddingHorizontal: 20,
     paddingVertical: 12,
-    borderRadius: 6,
+    borderRadius: 12,
+    minWidth: 120,
+    borderWidth: 2,
+    borderColor: 'transparent',
   },
-  resetText: {
+  activeTimer: {
+    borderColor: '#4a9eff',
+    backgroundColor: '#5a6578',
+  },
+  playerLabel: {
+    fontSize: 11,
+    fontWeight: '700',
     color: '#ffffff',
-    fontSize: 14,
+    letterSpacing: 1,
+    marginBottom: 2,
+  },
+  timeText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#ffffff',
+    fontFamily: 'monospace',
+  },
+  activeTimeText: {
+    color: '#4a9eff',
+  },
+  criticalTimeText: {
+    color: '#dc2626',
+  },
+  removalsInfo: {
+    backgroundColor: '#6c757d',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 12,
+    minWidth: 60,
+    alignItems: 'center',
+  },
+  removalsText: {
+    fontSize: 16,
+    color: '#ffffff',
+    fontWeight: 'bold',
+  },
+  centerZone: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    position: 'relative',
+  },
+  boardContainer: {
+    flex: 1,
+    justifyContent: 'center',
+  },
+  compactControls: {
+    flexDirection: 'row',
+    position: 'absolute',
+    bottom: 20,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    borderRadius: 25,
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    gap: 8,
+  },
+  compactButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#5cb85c',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  activeCompactButton: {
+    backgroundColor: '#4a9eff',
+  },
+  removeCompactButton: {
+    backgroundColor: '#666666',
+  },
+  activeRemoveCompactButton: {
+    backgroundColor: '#d9534f',
+  },
+  disabledCompactButton: {
+    backgroundColor: '#444444',
+    opacity: 0.5,
+  },
+  resetCompactButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#d9534f',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  removeIcon: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#ffffff',
+  },
+  gameOverOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  gameOverCard: {
+    backgroundColor: '#ffffff',
+    padding: 32,
+    borderRadius: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  winnerText: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#000000',
+    marginTop: 16,
+    marginBottom: 20,
+  },
+  newGameButton: {
+    backgroundColor: '#5cb85c',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  newGameText: {
+    color: '#ffffff',
+    fontSize: 16,
     fontWeight: '600',
-    marginLeft: 6,
   },
 });

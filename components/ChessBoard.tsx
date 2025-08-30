@@ -7,18 +7,20 @@ interface ChessBoardProps {
   board: Board;
   selectedSquare: Position | null;
   removedSquares: Set<string>;
+  possibleMoves: Position[];
   onSquarePress: (row: number, col: number) => void;
   currentPlayer: Player;
 }
 
 const { width: screenWidth } = Dimensions.get('window');
-const boardSize = Math.min(screenWidth - 40, 320);
+const boardSize = Math.min(screenWidth - 80, 360);
 const squareSize = boardSize / 8;
 
 export default function ChessBoard({
   board,
   selectedSquare,
   removedSquares,
+  possibleMoves,
   onSquarePress,
   currentPlayer,
 }: ChessBoardProps) {
@@ -47,6 +49,9 @@ export default function ChessBoard({
                   selectedSquare[0] === rowIndex && 
                   selectedSquare[1] === colIndex;
                 const isRemoved = removedSquares.has(`${rowIndex}-${colIndex}`);
+                const isPossibleMove = possibleMoves.some(
+                  ([moveRow, moveCol]) => moveRow === rowIndex && moveCol === colIndex
+                );
                 
                 return (
                   <ChessSquare
@@ -55,6 +60,7 @@ export default function ChessBoard({
                     isLight={isLight}
                     isSelected={isSelected}
                     isRemoved={isRemoved}
+                    isPossibleMove={isPossibleMove}
                     onPress={() => onSquarePress(rowIndex, colIndex)}
                     canSelect={piece?.color === currentPlayer}
                     size={squareSize}
