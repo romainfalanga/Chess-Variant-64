@@ -48,12 +48,16 @@ export default function DraftInterface({
 
   const uniquePieces = Object.keys(pieceCounts) as PieceType[];
 
+  // Couleurs dynamiques selon le joueur
+  const backgroundColor = currentPlayer === 'white' ? '#ffffff' : '#000000';
+  const textColor = currentPlayer === 'white' ? '#000000' : '#ffffff';
+  const instructionColor = currentPlayer === 'white' ? '#666666' : '#cccccc';
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>
+    <View style={[styles.container, { backgroundColor }]}>
+      <Text style={[styles.title, { color: textColor }]}>
         Phase de placement - {currentPlayer === 'white' ? 'BLANC' : 'NOIR'}
       </Text>
-      <Text style={styles.instruction}>
+      <Text style={[styles.instruction, { color: instructionColor }]}>
         Choisissez une pièce puis cliquez sur votre première rangée
       </Text>
       
@@ -100,7 +104,6 @@ export default function DraftInterface({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'rgba(0,0,0,0.8)',
     padding: 12,
     borderRadius: 8,
     alignItems: 'center',
@@ -108,12 +111,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#ffffff',
     marginBottom: 4,
   },
   instruction: {
     fontSize: 12,
-    color: '#cccccc',
     marginBottom: 12,
     textAlign: 'center',
   },
