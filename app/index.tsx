@@ -375,6 +375,8 @@ export default function ChessGame() {
       timeLeft={gameState.timeLeft}
       currentPlayer={gameState.currentPlayer}
       gameOver={gameState.gameOver}
+      removalsUsed={gameState.removalsUsed}
+      maxRemovals={gameConfig.removalsPerPlayer}
       onTimeUp={handleTimeUp}
       onTimeUpdate={handleTimeUpdate}
     />
@@ -414,8 +416,6 @@ export default function ChessGame() {
 
         {/* Zone centrale - Échiquier et contrôles */}
         <View style={styles.centerZone}>
-          removalsUsed={gameState.removalsUsed}
-          maxRemovals={gameConfig.removalsPerPlayer}
           <View style={styles.boardContainer}>
             <ChessBoard
               board={gameState.board}
