@@ -323,40 +323,64 @@ export default function ChessGame() {
           {/* Contrôles compacts */}
           {!gameState.gameOver && (
             <View style={styles.compactControls}>
-              <TouchableOpacity
-                style={[
-                  styles.compactButton,
-                  actionMode === 'move' && styles.activeCompactButton,
-                ]}
-                onPress={() => setActionMode('move')}
-                activeOpacity={0.8}
-              >
-                <Ionicons name="move" size={18} color="#ffffff" />
-              </TouchableOpacity>
+              {/* Toggle binaire pour mode de jeu */}
+              <View style={styles.toggleContainer}>
+                <TouchableOpacity
+                  style={[
+                    styles.toggleButton,
+                    styles.toggleLeft,
+                    actionMode === 'move' && styles.toggleActive,
+                  ]}
+                  onPress={() => setActionMode('move')}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons name="move" size={16} color={actionMode === 'move' ? "#ffffff" : "#666666"} />
+                  <Text style={[
+                    styles.toggleText,
+                    actionMode === 'move' && styles.toggleActiveText,
+                  ]}>
+                    Déplacer
+                  </Text>
+                </TouchableOpacity>
 
-              <TouchableOpacity
-                style={[
-                  styles.compactButton,
-                  styles.removeCompactButton,
-                  actionMode === 'remove' && styles.activeRemoveCompactButton,
-                  gameState.removalsUsed[gameState.currentPlayer] >= gameConfig.removalsPerPlayer && styles.disabledCompactButton,
-                ]}
-                onPress={() => setActionMode('remove')}
-                activeOpacity={0.8}
-                disabled={gameState.removalsUsed[gameState.currentPlayer] >= gameConfig.removalsPerPlayer}
-              >
-                <Text style={styles.removeIcon}>✕</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity 
-                style={styles.resetCompactButton} 
-                onPress={resetGame}
-                activeOpacity={0.8}
-              >
-                <Ionicons name="refresh" size={18} color="#ffffff" />
-              </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.toggleButton,
+                    styles.toggleRight,
+                    actionMode === 'remove' && styles.toggleActiveRemove,
+                    gameState.removalsUsed[gameState.currentPlayer] >= gameConfig.removalsPerPlayer && styles.toggleDisabled,
+                  ]}
+                  onPress={() => setActionMode('remove')}
+                  activeOpacity={0.8}
+                  disabled={gameState.removalsUsed[gameState.currentPlayer] >= gameConfig.removalsPerPlayer}
+                >
+                  <Text style={[
+                    styles.removeIcon,
+                    actionMode === 'remove' && styles.toggleActiveText,
+                    gameState.removalsUsed[gameState.currentPlayer] >= gameConfig.removalsPerPlayer && styles.toggleDisabledText,
+                  ]}>
+                    ✕
+                  </Text>
+                  <Text style={[
+                    styles.toggleText,
+                    actionMode === 'remove' && styles.toggleActiveText,
+                    gameState.removalsUsed[gameState.currentPlayer] >= gameConfig.removalsPerPlayer && styles.toggleDisabledText,
+                  ]}>
+                    Supprimer
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           )}
+
+          {/* Bouton retour au menu (séparé) */}
+          <TouchableOpacity 
+            style={styles.menuButton} 
+            onPress={resetGame}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="home" size={20} color="#ffffff" />
+          </TouchableOpacity>
 
           {/* Game Over Overlay */}
           {gameState.gameOver && (
@@ -482,48 +506,68 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   compactControls: {
-    flexDirection: 'row',
     position: 'absolute',
     bottom: 20,
-    backgroundColor: 'rgba(0,0,0,0.8)',
-    borderRadius: 25,
-    paddingHorizontal: 8,
-    paddingVertical: 8,
-    gap: 8,
-  },
-  compactButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#5cb85c',
-    justifyContent: 'center',
     alignItems: 'center',
   },
-  activeCompactButton: {
-    backgroundColor: '#4a9eff',
+  toggleContainer: {
+    flexDirection: 'row',
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    borderRadius: 20,
+    overflow: 'hidden',
   },
-  removeCompactButton: {
-    backgroundColor: '#666666',
+  toggleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: 'transparent',
+    gap: 6,
   },
-  activeRemoveCompactButton: {
+  toggleLeft: {
+    borderTopLeftRadius: 20,
+    borderBottomLeftRadius: 20,
+  },
+  toggleRight: {
+    borderTopRightRadius: 20,
+    borderBottomRightRadius: 20,
+  },
+  toggleActive: {
+    backgroundColor: '#5cb85c',
+  },
+  toggleActiveRemove: {
     backgroundColor: '#d9534f',
   },
-  disabledCompactButton: {
-    backgroundColor: '#444444',
+  toggleDisabled: {
+    backgroundColor: 'transparent',
     opacity: 0.5,
   },
-  resetCompactButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#d9534f',
-    justifyContent: 'center',
-    alignItems: 'center',
+  toggleText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#666666',
+  },
+  toggleActiveText: {
+    color: '#ffffff',
+  },
+  toggleDisabledText: {
+    color: '#444444',
   },
   removeIcon: {
-    fontSize: 18,
+    fontSize: 14,
     fontWeight: 'bold',
-    color: '#ffffff',
+    color: '#666666',
+  },
+  menuButton: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   gameOverOverlay: {
     position: 'absolute',
