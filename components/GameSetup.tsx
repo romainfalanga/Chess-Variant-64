@@ -37,7 +37,7 @@ export default function GameSetup({ settings, onSettingsChange, onStartGame }: G
         <View style={styles.header}>
           <Text style={styles.title}>Chess Variant 64</Text>
           <Text style={styles.description}>
-            Une variante révolutionnaire des échecs où chaque joueur peut supprimer des cases vides de l'échiquier pour créer de nouvelles stratégies tactiques.
+            Une variante des échecs où chaque joueur peut supprimer{'\n'}des cases de l'échiquier pour créer de nouvelles{'\n'}stratégies tactiques.
           </Text>
         </View>
 
