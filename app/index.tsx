@@ -14,8 +14,18 @@ import { Ionicons } from '@expo/vector-icons';
 import ChessBoard from '@/components/ChessBoard';
 import GameSetup from '@/components/GameSetup';
 import ChessTimer from '@/components/ChessTimer';
+import DraftInterface from '@/components/DraftInterface';
 import { GameState, Position, GameSettings, GameConfig } from '@/types/chess';
-import { initializeBoard, isValidMove, makeMove, isInCheck, isCheckmate, updateCastlingRights } from '@/utils/chessLogic';
+import { 
+  initializeBoard, 
+  initializeDraftBoard, 
+  getAvailableDraftPieces,
+  isValidMove, 
+  makeMove, 
+  isInCheck, 
+  isCheckmate, 
+  updateCastlingRights 
+} from '@/utils/chessLogic';
 
 const { width: screenWidth } = Dimensions.get('window');
 
@@ -23,7 +33,9 @@ export default function ChessGame() {
   const [gameConfig, setGameConfig] = useState<GameConfig>({
     timeLimit: 5,
     removalsPerPlayer: 3,
+    draftMode: false,
     gameStarted: false,
+    draftPhase: false,
   });
 
   const [gameState, setGameState] = useState<GameState>({
@@ -83,15 +95,110 @@ export default function ChessGame() {
   const startGame = () => {
     // Initialiser les temps en fonction de la configuration
     const timeInSeconds = gameConfig.timeLimit * 60;
+    
+    if (gameConfig.draftMode) {
+      // Mode draft : initialiser avec seulement les pions
+      setGameState(prev => ({
+        ...prev,
+        board: initializeDraftBoard(),
+        timeLeft: { white: timeInSeconds, black: timeInSeconds },
+        draftState: {
+          availablePieces: {
+            white: getAvailableDraftPieces(),
+            black: getAvailableDraftPieces(),
+          },
+          selectedPiece: null,
+          currentDraftPlayer: 'white',
+        },
+        currentPlayer: 'white', // Le chrono des blancs commence immédiatement
+      }));
+      setGameConfig(prev => ({ ...prev, gameStarted: true, draftPhase: true }));
+    } else {
+      // Mode classique
+      setGameState(prev => ({
+        ...prev,
+        board: initializeBoard(),
+        timeLeft: { white: timeInSeconds, black: timeInSeconds },
+      }));
+      setGameConfig(prev => ({ ...prev, gameStarted: true, draftPhase: false }));
+    }
+  };
+
+  const handleDraftPieceSelect = (piece: PieceType) => {
+    if (!gameState.draftState) return;
+    
     setGameState(prev => ({
       ...prev,
-      timeLeft: { white: timeInSeconds, black: timeInSeconds },
+      draftState: prev.draftState ? {
+        ...prev.draftState,
+        selectedPiece: piece,
+      } : undefined,
     }));
-    setGameConfig(prev => ({ ...prev, gameStarted: true }));
+  };
+
+  const handleDraftPlacement = (row: number, col: number) => {
+    if (!gameState.draftState || !gameState.draftState.selectedPiece) return;
+    
+    const targetRow = gameState.draftState.currentDraftPlayer === 'white' ? 7 : 0;
+    if (row !== targetRow) return;
+    
+    // Vérifier que la case est libre
+    if (gameState.board[row][col] !== null) return;
+    
+    const newBoard = gameState.board.map(boardRow => [...boardRow]);
+    newBoard[row][col] = {
+      type: gameState.draftState.selectedPiece,
+      color: gameState.draftState.currentDraftPlayer,
+    };
+    
+    // Retirer la pièce de la réserve
+    const newAvailablePieces = { ...gameState.draftState.availablePieces };
+    const playerPieces = [...newAvailablePieces[gameState.draftState.currentDraftPlayer]];
+    const pieceIndex = playerPieces.indexOf(gameState.draftState.selectedPiece);
+    if (pieceIndex > -1) {
+      playerPieces.splice(pieceIndex, 1);
+      newAvailablePieces[gameState.draftState.currentDraftPlayer] = playerPieces;
+    }
+    
+    // Changer de joueur
+    const nextPlayer = gameState.draftState.currentDraftPlayer === 'white' ? 'black' : 'white';
+    
+    // Vérifier si la phase de draft est terminée
+    const totalPiecesLeft = newAvailablePieces.white.length + newAvailablePieces.black.length;
+    const isDraftComplete = totalPiecesLeft === 0;
+    
+    if (isDraftComplete) {
+      // Terminer la phase de draft et commencer la partie
+      setGameState(prev => ({
+        ...prev,
+        board: newBoard,
+        currentPlayer: 'white', // Les blancs commencent toujours
+        draftState: undefined,
+      }));
+      setGameConfig(prev => ({ ...prev, draftPhase: false }));
+    } else {
+      setGameState(prev => ({
+        ...prev,
+        board: newBoard,
+        currentPlayer: nextPlayer,
+        draftState: {
+          ...gameState.draftState!,
+          availablePieces: newAvailablePieces,
+          selectedPiece: null,
+          currentDraftPlayer: nextPlayer, 
+        },
+      }));
+    }
   };
 
   const handleSquarePress = useCallback((row: number, col: number) => {
     if (gameState.gameOver) return;
+    
+    // Mode draft : placement des pièces
+    if (gameConfig.draftPhase && gameState.draftState) {
+      handleDraftPlacement(row, col);
+      return;
+    }
 
     const position: Position = [row, col];
     const positionKey = `${row}-${col}`;
@@ -227,7 +334,9 @@ export default function ChessGame() {
     setGameConfig({
       timeLimit: 5,
       removalsPerPlayer: 3,
+      draftMode: false,
       gameStarted: false,
+      draftPhase: false,
     });
     setGameState({
       board: initializeBoard(),
@@ -254,6 +363,7 @@ export default function ChessGame() {
         blackKingside: false,
         blackQueenside: false,
       },
+      draftState: undefined,
     });
     setActionMode('move');
     setPossibleMoves([]);
@@ -276,15 +386,6 @@ export default function ChessGame() {
       
       {/* Layout principal en 3 zones */}
       <View style={styles.gameLayout}>
-        
-        {/* Chronomètre invisible pour gérer le décompte */}
-        <ChessTimer
-          timeLeft={gameState.timeLeft}
-          currentPlayer={gameState.currentPlayer}
-          gameOver={gameState.gameOver}
-          onTimeUp={handleTimeUp}
-          onTimeUpdate={handleTimeUpdate}
-        />
         
         {/* Zone joueur noir (haut) */}
         <View style={styles.playerZone}>
@@ -309,6 +410,25 @@ export default function ChessGame() {
 
         {/* Zone centrale - Échiquier et contrôles */}
         <View style={styles.centerZone}>
+          {/* Chronomètre pour gérer le décompte */}
+          <ChessTimer
+            timeLeft={gameState.timeLeft}
+            currentPlayer={gameState.currentPlayer}
+            gameOver={gameState.gameOver}
+            onTimeUp={handleTimeUp}
+            onTimeUpdate={handleTimeUpdate}
+          />
+          
+          {/* Interface de draft */}
+          {gameConfig.draftPhase && gameState.draftState && (
+            <DraftInterface
+              availablePieces={gameState.draftState.availablePieces[gameState.draftState.currentDraftPlayer]}
+              selectedPiece={gameState.draftState.selectedPiece}
+              currentPlayer={gameState.draftState.currentDraftPlayer}
+              onPieceSelect={handleDraftPieceSelect}
+            />
+          )}
+          
           <View style={styles.boardContainer}>
             {/* Bouton retour au menu centré */}
             <TouchableOpacity 
@@ -350,7 +470,7 @@ export default function ChessGame() {
         </View>
 
         {/* Contrôles en bas de l'écran */}
-        {!gameState.gameOver && (
+        {!gameState.gameOver && !gameConfig.draftPhase && (
           <View style={styles.bottomControls}>
             {/* Toggle binaire pour mode de jeu */}
             <View style={styles.toggleContainer}>

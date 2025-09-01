@@ -72,7 +72,36 @@ export default function ChessTimer({
   };
 
   return (
-    <View style={{ display: 'none' }} />
+    <View style={styles.container}>
+      {/* Timer joueur noir (en haut) */}
+      <View style={[styles.blackTimerContainer]}>
+        <View style={getTimerStyle('black')}>
+          <Text style={[styles.playerLabel, styles.blackLabel]}>NOIR</Text>
+          <Text style={[
+            styles.timeText, 
+            styles.blackTimeText,
+            currentPlayer === 'black' && !gameOver && styles.activeTimeText,
+            timeLeft.black <= 10 && styles.criticalTimeText,
+          ]}>
+            {formatTime(timeLeft.black)}
+          </Text>
+        </View>
+      </View>
+
+      {/* Timer joueur blanc (en bas) */}
+      <View style={[styles.whiteTimerContainer]}>
+        <View style={getTimerStyle('white')}>
+          <Text style={styles.playerLabel}>BLANC</Text>
+          <Text style={[
+            styles.timeText,
+            currentPlayer === 'white' && !gameOver && styles.activeTimeText,
+            timeLeft.white <= 10 && styles.criticalTimeText,
+          ]}>
+            {formatTime(timeLeft.white)}
+          </Text>
+        </View>
+      </View>
+    </View>
   );
 }
 
@@ -147,5 +176,8 @@ const styles = StyleSheet.create({
   },
   criticalTimeText: {
     color: '#dc2626',
+  },
+  activeTimeText: {
+    color: '#4a9eff',
   },
 });
