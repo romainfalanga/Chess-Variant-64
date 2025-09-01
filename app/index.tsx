@@ -410,25 +410,6 @@ export default function ChessGame() {
 
         {/* Zone centrale - Échiquier et contrôles */}
         <View style={styles.centerZone}>
-          {/* Chronomètre pour gérer le décompte */}
-          <ChessTimer
-            timeLeft={gameState.timeLeft}
-            currentPlayer={gameState.currentPlayer}
-            gameOver={gameState.gameOver}
-            onTimeUp={handleTimeUp}
-            onTimeUpdate={handleTimeUpdate}
-          />
-          
-          {/* Interface de draft */}
-          {gameConfig.draftPhase && gameState.draftState && (
-            <DraftInterface
-              availablePieces={gameState.draftState.availablePieces[gameState.draftState.currentDraftPlayer]}
-              selectedPiece={gameState.draftState.selectedPiece}
-              currentPlayer={gameState.draftState.currentDraftPlayer}
-              onPieceSelect={handleDraftPieceSelect}
-            />
-          )}
-          
           <View style={styles.boardContainer}>
             {/* Bouton retour au menu centré */}
             <TouchableOpacity 
@@ -469,56 +450,66 @@ export default function ChessGame() {
           )}
         </View>
 
-        {/* Contrôles en bas de l'écran */}
-        {!gameState.gameOver && !gameConfig.draftPhase && (
+        {/* Contrôles en bas de l'écran - Interface de draft ou contrôles normaux */}
+        {!gameState.gameOver && (
           <View style={styles.bottomControls}>
-            {/* Toggle binaire pour mode de jeu */}
-            <View style={styles.toggleContainer}>
-              <TouchableOpacity
-                style={[
-                  styles.toggleButton,
-                  styles.toggleLeft,
-                  actionMode === 'move' && styles.toggleActive,
-                ]}
-                onPress={() => setActionMode('move')}
-                activeOpacity={0.8}
-              >
-                <Ionicons name="move" size={16} color={actionMode === 'move' ? "#ffffff" : "#666666"} />
-                <Text style={[
-                  styles.toggleText,
-                  actionMode === 'move' && styles.toggleActiveText,
-                ]}>
-                  Déplacer
-                </Text>
-              </TouchableOpacity>
+            {gameConfig.draftPhase && gameState.draftState ? (
+              /* Interface de draft */
+              <DraftInterface
+                availablePieces={gameState.draftState.availablePieces[gameState.draftState.currentDraftPlayer]}
+                selectedPiece={gameState.draftState.selectedPiece}
+                currentPlayer={gameState.draftState.currentDraftPlayer}
+                onPieceSelect={handleDraftPieceSelect}
+              />
+            ) : (
+              /* Toggle binaire pour mode de jeu normal */
+              <View style={styles.toggleContainer}>
+                <TouchableOpacity
+                  style={[
+                    styles.toggleButton,
+                    styles.toggleLeft,
+                    actionMode === 'move' && styles.toggleActive,
+                  ]}
+                  onPress={() => setActionMode('move')}
+                  activeOpacity={0.8}
+                >
+                  <Ionicons name="move" size={16} color={actionMode === 'move' ? "#ffffff" : "#666666"} />
+                  <Text style={[
+                    styles.toggleText,
+                    actionMode === 'move' && styles.toggleActiveText,
+                  ]}>
+                    Déplacer
+                  </Text>
+                </TouchableOpacity>
 
-              <TouchableOpacity
-                style={[
-                  styles.toggleButton,
-                  styles.toggleRight,
-                  actionMode === 'remove' && styles.toggleActiveRemove,
-                  gameState.removalsUsed[gameState.currentPlayer] >= gameConfig.removalsPerPlayer && styles.toggleDisabled,
-                ]}
-                onPress={() => setActionMode('remove')}
-                activeOpacity={0.8}
-                disabled={gameState.removalsUsed[gameState.currentPlayer] >= gameConfig.removalsPerPlayer}
-              >
-                <Text style={[
-                  styles.removeIcon,
-                  actionMode === 'remove' && styles.toggleActiveText,
-                  gameState.removalsUsed[gameState.currentPlayer] >= gameConfig.removalsPerPlayer && styles.toggleDisabledText,
-                ]}>
-                  ✕
-                </Text>
-                <Text style={[
-                  styles.toggleText,
-                  actionMode === 'remove' && styles.toggleActiveText,
-                  gameState.removalsUsed[gameState.currentPlayer] >= gameConfig.removalsPerPlayer && styles.toggleDisabledText,
-                ]}>
-                  Supprimer
-                </Text>
-              </TouchableOpacity>
-            </View>
+                <TouchableOpacity
+                  style={[
+                    styles.toggleButton,
+                    styles.toggleRight,
+                    actionMode === 'remove' && styles.toggleActiveRemove,
+                    gameState.removalsUsed[gameState.currentPlayer] >= gameConfig.removalsPerPlayer && styles.toggleDisabled,
+                  ]}
+                  onPress={() => setActionMode('remove')}
+                  activeOpacity={0.8}
+                  disabled={gameState.removalsUsed[gameState.currentPlayer] >= gameConfig.removalsPerPlayer}
+                >
+                  <Text style={[
+                    styles.removeIcon,
+                    actionMode === 'remove' && styles.toggleActiveText,
+                    gameState.removalsUsed[gameState.currentPlayer] >= gameConfig.removalsPerPlayer && styles.toggleDisabledText,
+                  ]}>
+                    ✕
+                  </Text>
+                  <Text style={[
+                    styles.toggleText,
+                    actionMode === 'remove' && styles.toggleActiveText,
+                    gameState.removalsUsed[gameState.currentPlayer] >= gameConfig.removalsPerPlayer && styles.toggleDisabledText,
+                  ]}>
+                    Supprimer
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
           </View>
         )}
         
