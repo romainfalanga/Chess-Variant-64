@@ -6,6 +6,8 @@ interface ChessTimerProps {
   timeLeft: { white: number; black: number };
   currentPlayer: Player;
   gameOver: boolean;
+  removalsUsed: { white: number; black: number };
+  maxRemovals: number;
   onTimeUp: (player: Player) => void;
   onTimeUpdate: (player: Player, newTime: number) => void;
 }
@@ -14,6 +16,8 @@ export default function ChessTimer({
   timeLeft,
   currentPlayer,
   gameOver,
+  removalsUsed,
+  maxRemovals,
   onTimeUp,
   onTimeUpdate,
 }: ChessTimerProps) {
@@ -57,6 +61,10 @@ export default function ChessTimer({
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
+  const getRemainingRemovals = (player: Player): number => {
+    return maxRemovals - removalsUsed[player];
+  };
+
   const getTimerStyle = (player: Player) => {
     const isActive = currentPlayer === player && !gameOver;
     const isLowTime = timeLeft[player] <= 30;
@@ -84,6 +92,9 @@ export default function ChessTimer({
         ]}>
           {formatTime(timeLeft.black)}
         </Text>
+        <Text style={[styles.removalsText, styles.blackLabel]}>
+          {getRemainingRemovals('black')} suppressions
+        </Text>
       </View>
 
       {/* Timer joueur blanc */}
@@ -95,6 +106,9 @@ export default function ChessTimer({
           timeLeft.white <= 10 && styles.criticalTimeText,
         ]}>
           {formatTime(timeLeft.white)}
+        </Text>
+        <Text style={styles.removalsText}>
+          {getRemainingRemovals('white')} suppressions
         </Text>
       </View>
     </View>
@@ -170,5 +184,11 @@ const styles = StyleSheet.create({
   },
   activeTimeText: {
     color: '#4a9eff',
+  },
+  removalsText: {
+    fontSize: 10,
+    color: '#6b7280',
+    fontWeight: '500',
+    marginTop: 2,
   },
 });

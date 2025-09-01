@@ -414,6 +414,8 @@ export default function ChessGame() {
 
         {/* Zone centrale - Échiquier et contrôles */}
         <View style={styles.centerZone}>
+          removalsUsed={gameState.removalsUsed}
+          maxRemovals={gameConfig.removalsPerPlayer}
           <View style={styles.boardContainer}>
             <ChessBoard
               board={gameState.board}
