@@ -36,6 +36,9 @@ export default function GameSetup({ settings, onSettingsChange, onStartGame }: G
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.title}>Chess Variant 64</Text>
+          <Text style={styles.description}>
+            Une variante révolutionnaire des échecs où chaque joueur peut supprimer des cases vides de l'échiquier pour créer de nouvelles stratégies tactiques.
+          </Text>
         </View>
 
         {/* Time Selection */}
@@ -125,6 +128,15 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     marginTop: 12,
     marginBottom: 4,
+  },
+  description: {
+    fontSize: 16,
+    color: '#cccccc',
+    textAlign: 'center',
+    lineHeight: 24,
+    marginTop: 8,
+    marginHorizontal: 20,
+    fontWeight: '400',
   },
   subtitle: {
     fontSize: 16,
