@@ -398,21 +398,23 @@ export default function ChessGame() {
       {/* Layout principal en 3 zones */}
       <View style={styles.gameLayout}>
         
+        {/* Bouton menu en haut au centre */}
+        <View style={styles.topMenuContainer}>
+          <TouchableOpacity 
+            style={styles.topMenuButton} 
+            onPress={resetGame}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="home" size={20} color="#ffffff" />
+          </TouchableOpacity>
+        </View>
+
         {/* Chronomètres intégrés */}
         {renderTimers()}
 
         {/* Zone centrale - Échiquier et contrôles */}
         <View style={styles.centerZone}>
           <View style={styles.boardContainer}>
-            {/* Bouton retour au menu centré */}
-            <TouchableOpacity 
-              style={styles.menuButton} 
-              onPress={resetGame}
-              activeOpacity={0.8}
-            >
-              <Ionicons name="home" size={20} color="#ffffff" />
-            </TouchableOpacity>
-
             <ChessBoard
               board={gameState.board}
               selectedSquare={gameState.selectedSquare}
@@ -518,7 +520,20 @@ const styles = StyleSheet.create({
   },
   gameLayout: {
     flex: 1,
-    justifyContent: 'space-around',
+    justifyContent: 'flex-start',
+  },
+  topMenuContainer: {
+    alignItems: 'center',
+    paddingTop: 8,
+    paddingBottom: 4,
+  },
+  topMenuButton: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(0,0,0,0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   playerZone: {
     height: 80,
@@ -578,6 +593,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   centerZone: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 16,
@@ -641,15 +657,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
     color: '#666666',
-  },
-  menuButton: {
-    marginBottom: 12,
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: 'rgba(0,0,0,0.8)',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   gameOverOverlay: {
     position: 'absolute',
