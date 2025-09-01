@@ -20,7 +20,7 @@
     "web": {
       "bundler": "metro",
       "output": "single",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/chessvariantdraft.jpg"
     },
     "plugins": ["expo-router", "expo-font", "expo-web-browser"],
     "experiments": {
