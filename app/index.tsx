@@ -529,30 +529,13 @@ const styles = StyleSheet.create({
     paddingTop: 8,
     paddingBottom: 4,
   },
-  headerContainer: {
-    backgroundColor: 'rgba(0,0,0,0.05)',
-    paddingVertical: 8,
-  },
-  headerContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 20,
-    marginBottom: 8,
-  },
-  leftSpacer: {
-    flex: 1,
-  },
-  menuButton: {
+  topMenuButton: {
     width: 48,
     height: 48,
     borderRadius: 24,
     backgroundColor: 'rgba(0,0,0,0.8)',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  rightSpacer: {
-    flex: 1,
   },
   playerZone: {
     height: 80,
