@@ -30,14 +30,18 @@ export default function GameSetup({ settings, onSettingsChange, onStartGame }: G
     onSettingsChange({ ...settings, removalsPerPlayer: removals });
   };
 
+  const toggleDraftMode = () => {
+    onSettingsChange({ ...settings, draftMode: !settings.draftMode });
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.content}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>Chess Variant 64</Text>
+          <Text style={styles.title}>Chess Variant Draft</Text>
           <Text style={styles.description}>
-            Une variante des échecs où chaque joueur peut supprimer{'\n'}des cases de l'échiquier pour créer de nouvelles{'\n'}stratégies tactiques.
+            Une variante des échecs avec un mode draft où vous{'\n'}placez vos pièces stratégiquement, puis jouez avec{'\n'}la possibilité de supprimer des cases de l'échiquier.
           </Text>
         </View>
 
@@ -64,6 +68,45 @@ export default function GameSetup({ settings, onSettingsChange, onStartGame }: G
                 </Text>
               </TouchableOpacity>
             ))}
+          </View>
+        </View>
+
+        {/* Draft Mode Toggle */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Activer le Mode Draft ?</Text>
+          <View style={styles.draftToggleContainer}>
+            <TouchableOpacity
+              style={[
+                styles.draftToggleButton,
+                styles.draftToggleLeft,
+                !settings.draftMode && styles.selectedDraftButton,
+              ]}
+              onPress={() => onSettingsChange({ ...settings, draftMode: false })}
+              activeOpacity={0.8}
+            >
+              <Text style={[
+                styles.draftToggleText,
+                !settings.draftMode && styles.selectedText,
+              ]}>
+                Non
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.draftToggleButton,
+                styles.draftToggleRight,
+                settings.draftMode && styles.selectedDraftButton,
+              ]}
+              onPress={() => onSettingsChange({ ...settings, draftMode: true })}
+              activeOpacity={0.8}
+            >
+              <Text style={[
+                styles.draftToggleText,
+                settings.draftMode && styles.selectedText,
+              ]}>
+                Oui
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -211,5 +254,34 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#ffffff',
     marginLeft: 8,
+  },
+  draftToggleContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#4a5568',
+    borderRadius: 8,
+    overflow: 'hidden',
+    alignSelf: 'center',
+  },
+  draftToggleButton: {
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+    minWidth: 80,
+    alignItems: 'center',
+  },
+  draftToggleLeft: {
+    borderTopLeftRadius: 8,
+    borderBottomLeftRadius: 8,
+  },
+  draftToggleRight: {
+    borderTopRightRadius: 8,
+    borderBottomRightRadius: 8,
+  },
+  selectedDraftButton: {
+    backgroundColor: '#4a9eff',
+  },
+  draftToggleText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#cccccc',
   },
 });

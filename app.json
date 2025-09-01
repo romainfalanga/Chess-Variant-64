@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Chess Variant 64",
-    "slug": "chess-variant-64",
+    "name": "Chess Variant Draft",
+    "slug": "chess-variant-draft",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
