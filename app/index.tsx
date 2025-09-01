@@ -518,7 +518,7 @@ const styles = StyleSheet.create({
   },
   gameLayout: {
     flex: 1,
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
   },
   playerZone: {
     height: 80,
@@ -587,10 +587,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   bottomControls: {
-    paddingVertical: 16,
-    paddingHorizontal: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
     backgroundColor: 'rgba(0,0,0,0.1)',
     alignItems: 'center',
+    minHeight: 120,
+    justifyContent: 'center',
   },
   toggleContainer: {
     flexDirection: 'row',
