@@ -73,33 +73,29 @@ export default function ChessTimer({
 
   return (
     <View style={styles.container}>
-      {/* Timer joueur noir (en haut) */}
-      <View style={[styles.blackTimerContainer]}>
-        <View style={getTimerStyle('black')}>
-          <Text style={[styles.playerLabel, styles.blackLabel]}>NOIR</Text>
-          <Text style={[
-            styles.timeText, 
-            styles.blackTimeText,
-            currentPlayer === 'black' && !gameOver && styles.activeTimeText,
-            timeLeft.black <= 10 && styles.criticalTimeText,
-          ]}>
-            {formatTime(timeLeft.black)}
-          </Text>
-        </View>
+      {/* Timer joueur noir */}
+      <View style={getTimerStyle('black')}>
+        <Text style={[styles.playerLabel, styles.blackLabel]}>NOIR</Text>
+        <Text style={[
+          styles.timeText, 
+          styles.blackTimeText,
+          currentPlayer === 'black' && !gameOver && styles.activeTimeText,
+          timeLeft.black <= 10 && styles.criticalTimeText,
+        ]}>
+          {formatTime(timeLeft.black)}
+        </Text>
       </View>
 
-      {/* Timer joueur blanc (en bas) */}
-      <View style={[styles.whiteTimerContainer]}>
-        <View style={getTimerStyle('white')}>
-          <Text style={styles.playerLabel}>BLANC</Text>
-          <Text style={[
-            styles.timeText,
-            currentPlayer === 'white' && !gameOver && styles.activeTimeText,
-            timeLeft.white <= 10 && styles.criticalTimeText,
-          ]}>
-            {formatTime(timeLeft.white)}
-          </Text>
-        </View>
+      {/* Timer joueur blanc */}
+      <View style={getTimerStyle('white')}>
+        <Text style={styles.playerLabel}>BLANC</Text>
+        <Text style={[
+          styles.timeText,
+          currentPlayer === 'white' && !gameOver && styles.activeTimeText,
+          timeLeft.white <= 10 && styles.criticalTimeText,
+        ]}>
+          {formatTime(timeLeft.white)}
+        </Text>
       </View>
     </View>
   );
@@ -107,16 +103,17 @@ export default function ChessTimer({
 
 const styles = StyleSheet.create({
   container: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     width: '100%',
-    alignItems: 'center',
-    marginVertical: 8,
+    paddingHorizontal: 20,
+    marginVertical: 12,
   },
   timer: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 10,
-    marginVertical: 2,
-    minWidth: 120,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 8,
+    minWidth: 110,
     alignItems: 'center',
     borderWidth: 3,
     borderColor: 'transparent',
@@ -132,19 +129,13 @@ const styles = StyleSheet.create({
   blackTimer: {
     backgroundColor: '#343a40',
   },
-  whiteTimerContainer: {
-    // Timer blanc normal (en bas)
-  },
-  blackTimerContainer: {
-    // Timer noir normal (en haut)
-  },
   activeTimer: {
     borderColor: '#4a9eff',
     shadowColor: '#4a9eff',
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.6,
-    shadowRadius: 12,
-    elevation: 8,
+    shadowRadius: 8,
+    elevation: 6,
   },
   lowTimeTimer: {
     borderColor: '#f59e0b',
@@ -156,7 +147,7 @@ const styles = StyleSheet.create({
     shadowColor: '#dc2626',
   },
   playerLabel: {
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: '700',
     color: '#374151',
     letterSpacing: 1,
@@ -165,7 +156,7 @@ const styles = StyleSheet.create({
     color: '#f8f9fa',
   },
   timeText: {
-    fontSize: 28,
+    fontSize: 22,
     fontWeight: 'bold',
     color: '#111827',
     fontFamily: 'monospace',
