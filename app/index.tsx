@@ -309,6 +309,15 @@ export default function ChessGame() {
 
         {/* Zone centrale - Échiquier et contrôles */}
         <View style={styles.centerZone}>
+          {/* Bouton retour au menu centré */}
+          <TouchableOpacity 
+            style={styles.menuButton} 
+            onPress={resetGame}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="home" size={20} color="#ffffff" />
+          </TouchableOpacity>
+
           <View style={styles.boardContainer}>
             <ChessBoard
               board={gameState.board}
@@ -372,15 +381,6 @@ export default function ChessGame() {
               </View>
             </View>
           )}
-
-          {/* Bouton retour au menu (séparé) */}
-          <TouchableOpacity 
-            style={styles.menuButton} 
-            onPress={resetGame}
-            activeOpacity={0.8}
-          >
-            <Ionicons name="home" size={20} color="#ffffff" />
-          </TouchableOpacity>
 
           {/* Game Over Overlay */}
           {gameState.gameOver && (
@@ -559,9 +559,8 @@ const styles = StyleSheet.create({
     color: '#666666',
   },
   menuButton: {
-    position: 'absolute',
-    top: 50,
-    right: 20,
+    alignSelf: 'center',
+    marginBottom: 20,
     width: 48,
     height: 48,
     borderRadius: 24,
