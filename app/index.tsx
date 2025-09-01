@@ -349,27 +349,6 @@ export default function ChessGame() {
           )}
         </View>
 
-        {/* Zone joueur blanc (bas) */}
-        <View style={styles.playerZone}>
-          <View style={styles.playerInfo}>
-            <View style={styles.removalsInfo}>
-              <Text style={styles.removalsText}>
-                {gameConfig.removalsPerPlayer - gameState.removalsUsed.white} ✕
-              </Text>
-            </View>
-            <View style={styles.timerContainer}>
-              <Text style={styles.playerLabel}>BLANC</Text>
-              <Text style={[
-                styles.timeText,
-                gameState.currentPlayer === 'white' && styles.activeTimeText,
-                gameState.timeLeft.white <= 10 && styles.criticalTimeText,
-              ]}>
-                {Math.floor(gameState.timeLeft.white / 60)}:{(gameState.timeLeft.white % 60).toString().padStart(2, '0')}
-              </Text>
-            </View>
-          </View>
-        </View>
-        
         {/* Contrôles en bas de l'écran */}
         {!gameState.gameOver && (
           <View style={styles.bottomControls}>
@@ -422,6 +401,27 @@ export default function ChessGame() {
             </View>
           </View>
         )}
+        
+        {/* Zone joueur blanc (bas) */}
+        <View style={styles.playerZone}>
+          <View style={styles.playerInfo}>
+            <View style={styles.removalsInfo}>
+              <Text style={styles.removalsText}>
+                {gameConfig.removalsPerPlayer - gameState.removalsUsed.white} ✕
+              </Text>
+            </View>
+            <View style={styles.timerContainer}>
+              <Text style={styles.playerLabel}>BLANC</Text>
+              <Text style={[
+                styles.timeText,
+                gameState.currentPlayer === 'white' && styles.activeTimeText,
+                gameState.timeLeft.white <= 10 && styles.criticalTimeText,
+              ]}>
+                {Math.floor(gameState.timeLeft.white / 60)}:{(gameState.timeLeft.white % 60).toString().padStart(2, '0')}
+              </Text>
+            </View>
+          </View>
+        </View>
         
       </View>
     </SafeAreaView>
