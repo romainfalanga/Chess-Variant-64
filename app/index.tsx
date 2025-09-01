@@ -328,59 +328,6 @@ export default function ChessGame() {
               currentPlayer={gameState.currentPlayer}
             />
           </View>
-          
-          {/* Contrôles compacts */}
-          {!gameState.gameOver && (
-            <View style={styles.compactControls}>
-              {/* Toggle binaire pour mode de jeu */}
-              <View style={styles.toggleContainer}>
-                <TouchableOpacity
-                  style={[
-                    styles.toggleButton,
-                    styles.toggleLeft,
-                    actionMode === 'move' && styles.toggleActive,
-                  ]}
-                  onPress={() => setActionMode('move')}
-                  activeOpacity={0.8}
-                >
-                  <Ionicons name="move" size={16} color={actionMode === 'move' ? "#ffffff" : "#666666"} />
-                  <Text style={[
-                    styles.toggleText,
-                    actionMode === 'move' && styles.toggleActiveText,
-                  ]}>
-                    Déplacer
-                  </Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={[
-                    styles.toggleButton,
-                    styles.toggleRight,
-                    actionMode === 'remove' && styles.toggleActiveRemove,
-                    gameState.removalsUsed[gameState.currentPlayer] >= gameConfig.removalsPerPlayer && styles.toggleDisabled,
-                  ]}
-                  onPress={() => setActionMode('remove')}
-                  activeOpacity={0.8}
-                  disabled={gameState.removalsUsed[gameState.currentPlayer] >= gameConfig.removalsPerPlayer}
-                >
-                  <Text style={[
-                    styles.removeIcon,
-                    actionMode === 'remove' && styles.toggleActiveText,
-                    gameState.removalsUsed[gameState.currentPlayer] >= gameConfig.removalsPerPlayer && styles.toggleDisabledText,
-                  ]}>
-                    ✕
-                  </Text>
-                  <Text style={[
-                    styles.toggleText,
-                    actionMode === 'remove' && styles.toggleActiveText,
-                    gameState.removalsUsed[gameState.currentPlayer] >= gameConfig.removalsPerPlayer && styles.toggleDisabledText,
-                  ]}>
-                    Supprimer
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          )}
 
           {/* Game Over Overlay */}
           {gameState.gameOver && (
@@ -422,6 +369,59 @@ export default function ChessGame() {
             </View>
           </View>
         </View>
+        
+        {/* Contrôles en bas de l'écran */}
+        {!gameState.gameOver && (
+          <View style={styles.bottomControls}>
+            {/* Toggle binaire pour mode de jeu */}
+            <View style={styles.toggleContainer}>
+              <TouchableOpacity
+                style={[
+                  styles.toggleButton,
+                  styles.toggleLeft,
+                  actionMode === 'move' && styles.toggleActive,
+                ]}
+                onPress={() => setActionMode('move')}
+                activeOpacity={0.8}
+              >
+                <Ionicons name="move" size={16} color={actionMode === 'move' ? "#ffffff" : "#666666"} />
+                <Text style={[
+                  styles.toggleText,
+                  actionMode === 'move' && styles.toggleActiveText,
+                ]}>
+                  Déplacer
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.toggleButton,
+                  styles.toggleRight,
+                  actionMode === 'remove' && styles.toggleActiveRemove,
+                  gameState.removalsUsed[gameState.currentPlayer] >= gameConfig.removalsPerPlayer && styles.toggleDisabled,
+                ]}
+                onPress={() => setActionMode('remove')}
+                activeOpacity={0.8}
+                disabled={gameState.removalsUsed[gameState.currentPlayer] >= gameConfig.removalsPerPlayer}
+              >
+                <Text style={[
+                  styles.removeIcon,
+                  actionMode === 'remove' && styles.toggleActiveText,
+                  gameState.removalsUsed[gameState.currentPlayer] >= gameConfig.removalsPerPlayer && styles.toggleDisabledText,
+                ]}>
+                  ✕
+                </Text>
+                <Text style={[
+                  styles.toggleText,
+                  actionMode === 'remove' && styles.toggleActiveText,
+                  gameState.removalsUsed[gameState.currentPlayer] >= gameConfig.removalsPerPlayer && styles.toggleDisabledText,
+                ]}>
+                  Supprimer
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        )}
         
       </View>
     </SafeAreaView>
@@ -498,15 +498,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 16,
-    position: 'relative',
   },
   boardContainer: {
     justifyContent: 'center',
     alignItems: 'center',
   },
-  compactControls: {
-    position: 'absolute',
-    bottom: 20,
+  bottomControls: {
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    backgroundColor: 'rgba(0,0,0,0.1)',
     alignItems: 'center',
   },
   toggleContainer: {
