@@ -180,12 +180,12 @@ export default function ChessGame() {
       setGameState(prev => ({
         ...prev,
         board: newBoard,
-        currentPlayer: nextPlayer,
+        currentPlayer: nextPlayer, // Change de joueur après chaque placement
         draftState: {
           ...gameState.draftState!,
           availablePieces: newAvailablePieces,
           selectedPiece: null,
-          currentDraftPlayer: nextPlayer, 
+          currentDraftPlayer: nextPlayer,
         },
       }));
     }
@@ -369,6 +369,17 @@ export default function ChessGame() {
     setPossibleMoves([]);
   };
 
+  // Utiliser le composant ChessTimer pour gérer les chronomètres
+  const renderTimers = () => (
+    <ChessTimer
+      timeLeft={gameState.timeLeft}
+      currentPlayer={gameState.currentPlayer}
+      gameOver={gameState.gameOver}
+      onTimeUp={handleTimeUp}
+      onTimeUpdate={handleTimeUpdate}
+    />
+  );
+
   // Afficher l'écran de configuration si le jeu n'a pas commencé
   if (!gameConfig.gameStarted) {
     return (
@@ -387,26 +398,8 @@ export default function ChessGame() {
       {/* Layout principal en 3 zones */}
       <View style={styles.gameLayout}>
         
-        {/* Zone joueur noir (haut) */}
-        <View style={styles.playerZone}>
-          <View style={styles.playerInfo}>
-            <View style={styles.timerContainer}>
-              <Text style={[
-                styles.timeText,
-                gameState.currentPlayer === 'black' && styles.activeTimeText,
-                gameState.timeLeft.black <= 10 && styles.criticalTimeText,
-              ]}>
-                {Math.floor(gameState.timeLeft.black / 60)}:{(gameState.timeLeft.black % 60).toString().padStart(2, '0')}
-              </Text>
-              <Text style={styles.playerLabel}>NOIR</Text>
-            </View>
-            <View style={styles.removalsInfo}>
-              <Text style={styles.removalsText}>
-                {gameConfig.removalsPerPlayer - gameState.removalsUsed.black} ✕
-              </Text>
-            </View>
-          </View>
-        </View>
+        {/* Chronomètres intégrés */}
+        {renderTimers()}
 
         {/* Zone centrale - Échiquier et contrôles */}
         <View style={styles.centerZone}>
@@ -512,27 +505,6 @@ export default function ChessGame() {
             )}
           </View>
         )}
-        
-        {/* Zone joueur blanc (bas) */}
-        <View style={styles.playerZone}>
-          <View style={styles.playerInfo}>
-            <View style={styles.removalsInfo}>
-              <Text style={styles.removalsText}>
-                {gameConfig.removalsPerPlayer - gameState.removalsUsed.white} ✕
-              </Text>
-            </View>
-            <View style={styles.timerContainer}>
-              <Text style={styles.playerLabel}>BLANC</Text>
-              <Text style={[
-                styles.timeText,
-                gameState.currentPlayer === 'white' && styles.activeTimeText,
-                gameState.timeLeft.white <= 10 && styles.criticalTimeText,
-              ]}>
-                {Math.floor(gameState.timeLeft.white / 60)}:{(gameState.timeLeft.white % 60).toString().padStart(2, '0')}
-              </Text>
-            </View>
-          </View>
-        </View>
         
       </View>
     </SafeAreaView>
