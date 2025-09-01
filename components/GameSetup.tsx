@@ -19,7 +19,7 @@ interface GameSetupProps {
 const { width: screenWidth } = Dimensions.get('window');
 
 const timeOptions = [3, 5, 10, 15];
-const removalOptions = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+const removalOptions = [1, 3, 5];
 
 export default function GameSetup({ settings, onSettingsChange, onStartGame }: GameSetupProps) {
   const updateTimeLimit = (time: number) => {
@@ -35,9 +35,7 @@ export default function GameSetup({ settings, onSettingsChange, onStartGame }: G
       <View style={styles.content}>
         {/* Header */}
         <View style={styles.header}>
-          <Ionicons name="trophy" size={32} color="#f59e0b" />
           <Text style={styles.title}>Chess Variant 64</Text>
-          <Text style={styles.subtitle}>Configuration de la partie</Text>
         </View>
 
         {/* Time Selection */}
@@ -68,7 +66,7 @@ export default function GameSetup({ settings, onSettingsChange, onStartGame }: G
 
         {/* Removals Selection */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Suppressions par joueur</Text>
+          <Text style={styles.sectionTitle}>Cases supprimables par joueur</Text>
           <View style={styles.optionsGrid}>
             {removalOptions.map((removals) => (
               <TouchableOpacity
