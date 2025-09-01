@@ -40,9 +40,6 @@ export default function GameSetup({ settings, onSettingsChange, onStartGame }: G
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.title}>Chess Variant Draft</Text>
-          <Text style={styles.description}>
-            Une variante des échecs avec un mode draft où vous{'\n'}placez vos pièces stratégiquement, puis jouez avec{'\n'}la possibilité de supprimer des cases de l'échiquier.
-          </Text>
         </View>
 
         {/* Time Selection */}
