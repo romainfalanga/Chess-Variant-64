@@ -50,6 +50,28 @@ export function initializeBoard(): Board {
   return board;
 }
 
+export function initializeDraftBoard(): Board {
+  const board: Board = Array(8).fill(null).map(() => Array(8).fill(null));
+  
+  // Seulement les pions pour commencer en mode draft
+  for (let col = 0; col < 8; col++) {
+    board[1][col] = { type: 'pawn', color: 'black' };
+    board[6][col] = { type: 'pawn', color: 'white' };
+  }
+  
+  return board;
+}
+
+export function getAvailableDraftPieces(): PieceType[] {
+  return [
+    'king',
+    'queen',
+    'rook', 'rook',
+    'bishop', 'bishop',
+    'knight', 'knight'
+  ];
+}
+
 export function isValidMove(
   board: Board,
   from: Position,
