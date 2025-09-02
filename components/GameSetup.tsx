@@ -142,6 +142,27 @@ export default function GameSetup({ settings, onSettingsChange, onStartGame }: G
           <Ionicons name="play" size={20} color="#ffffff" />
           <Text style={styles.startButtonText}>Lancer la partie</Text>
         </TouchableOpacity>
+
+        {/* Boutons Faire un don et Telegram */}
+        <View style={styles.socialButtonsContainer}>
+          <TouchableOpacity
+            style={styles.donationButton}
+            onPress={() => Linking.openURL('https://fr.tipeee.com/romain-falanga')}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="heart" size={18} color="#ffffff" />
+            <Text style={styles.donationButtonText}>Faire un don</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.telegramButton}
+            onPress={() => Linking.openURL('https://t.me/RomainFLGpublic')}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="paper-plane" size={18} color="#4a5568" />
+            <Text style={styles.telegramButtonText}>Telegram</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -280,5 +301,51 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#cccccc',
+  },
+  socialButtonsContainer: {
+    flexDirection: 'row',
+    marginTop: 20,
+    gap: 12,
+    justifyContent: 'center',
+  },
+  donationButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#e74c3c',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  },
+  donationButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#ffffff',
+    marginLeft: 6,
+  },
+  telegramButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    borderWidth: 2,
+    borderColor: '#4a5568',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 8,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  },
+  telegramButtonText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#4a5568',
+    marginLeft: 6,
   },
 });
